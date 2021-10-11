@@ -34,7 +34,7 @@ class Mapping():
         return "\n".join(numlist)
 
 
-def pyrouge_score(hypo_list, refer_list, language, level='char', convert=True):
+def pyrouge_score(hypo_list, refer_list, language, level='char', convert=True, debug=False):
     """ calculate prouge for hypo and single refer
 
     :param hypo_list: list, each item is a (tokenized) string. Multiple sentences must be concatenated with '\n' for ROUGE-L
@@ -54,6 +54,10 @@ def pyrouge_score(hypo_list, refer_list, language, level='char', convert=True):
     if (language == 'zh' or language == 'ja' or language == 'ko') and level == 'char':
         hypo_list = [str2char(ins, language) for ins in hypo_list]
         refer_list = [[str2char(refer, language) for refer in ins] for ins in refer_list]
+
+    if debug:
+        for h, r in zip(hypo_list, refer_list):
+            print('{}\t{}'.format(h, r))
 
     nowTime=datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     PYROUGE_ROOT = os.path.join(_PYROUGE_TEMP_PATH, nowTime)
@@ -148,6 +152,7 @@ if __name__ == "__main__":
     parser.add_argument('-l', type=str, default="en", help='language')
     parser.add_argument('-d', type=str, default="", help='delimiter')
     parser.add_argument('-t', action='store_true', help='need to tokenize the original document')
+    parser.add_argument('-v', action='store_true', help='print detailed information')
     args = parser.parse_args()
     print(args)
     candidates = codecs.open(args.c, encoding="utf-8")
@@ -186,6 +191,6 @@ if __name__ == "__main__":
     print("candidate: %d, reference: %d\t%s" % (len(candidates), len(references), time.strftime('%H:%M:%S', time.localtime())))
 
     assert len(candidates) == len(references)
-    results_dict = pyrouge_score(candidates, references, args.l, convert=False)
+    results_dict = pyrouge_score(candidates, references, args.l, convert=False, debug=args.v)
     print(rouge_results_to_str(results_dict))
     print(time.strftime('%H:%M:%S', time.localtime()))

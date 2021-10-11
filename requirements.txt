@@ -1,0 +1,3 @@
+sacremoses
+pysbd
+git+https://github.com/bheinzerling/pyrouge
